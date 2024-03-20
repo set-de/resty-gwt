@@ -2,7 +2,7 @@ package org.fusesource.restygwt.rebind.util;
 
 import java.lang.reflect.Method;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 import junit.framework.TestCase;
 
@@ -17,7 +17,7 @@ public class AnnotationCopyUtilTestCase extends TestCase {
         Path pathAnnotation = method.getAnnotation(Path.class);
 
         String result = AnnotationCopyUtil.getAnnotationAsString(pathAnnotation);
-        assertEquals("@javax.ws.rs.Path(value = \"/get/{id}\")", result);
+        assertEquals("@jakarta.ws.rs.Path(value = \"/get/{id}\")", result);
     }
 
     @Test
@@ -27,7 +27,7 @@ public class AnnotationCopyUtilTestCase extends TestCase {
         Path pathAnnotation = method.getAnnotation(Path.class);
 
         String result = AnnotationCopyUtil.getAnnotationAsString(pathAnnotation);
-        assertEquals("@javax.ws.rs.Path(value = \"/get/{id}/things/{thing}\")", result);
+        assertEquals("@jakarta.ws.rs.Path(value = \"/get/{id}/things/{thing}\")", result);
     }
 
 

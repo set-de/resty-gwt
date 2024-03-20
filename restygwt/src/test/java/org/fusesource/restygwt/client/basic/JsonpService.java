@@ -22,7 +22,7 @@ import com.google.gwt.jsonp.client.JsonpRequest;
 
 import java.util.List;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 import org.fusesource.restygwt.client.JSONP;
 import org.fusesource.restygwt.client.MethodCallback;

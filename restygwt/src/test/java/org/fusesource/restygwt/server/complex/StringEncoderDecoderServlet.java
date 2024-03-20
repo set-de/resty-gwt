@@ -18,9 +18,9 @@
 
 package org.fusesource.restygwt.server.complex;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.ws.rs.Path;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.ws.rs.Path;
 
 import org.fusesource.restygwt.client.complex.string.service.StringService;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;

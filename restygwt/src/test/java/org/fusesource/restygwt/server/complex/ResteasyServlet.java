@@ -35,14 +35,14 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.ext.ParamConverter;
-import javax.ws.rs.ext.ParamConverterProvider;
-import javax.ws.rs.ext.Provider;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.ext.ParamConverter;
+import jakarta.ws.rs.ext.ParamConverterProvider;
+import jakarta.ws.rs.ext.Provider;
 
 import org.fusesource.restygwt.client.complex.ResteasyService;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
@@ -142,6 +142,7 @@ public class ResteasyServlet extends HttpServletDispatcher {
             return new InvalidBean();
         }
     }
+
 
     @Override
     public void init(ServletConfig config) throws ServletException {

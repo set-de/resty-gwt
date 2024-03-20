@@ -46,16 +46,6 @@ class DummyJField implements JField {
     }
 
     @Override
-    public String[][] getMetaData(String tagName) {
-        return null;
-    }
-
-    @Override
-    public String[] getMetaDataTags() {
-        return null;
-    }
-
-    @Override
     public JClassType getEnclosingType() {
         return null;
     }

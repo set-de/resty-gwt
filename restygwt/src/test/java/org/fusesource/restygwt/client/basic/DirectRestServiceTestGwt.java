@@ -25,8 +25,8 @@ import com.google.gwt.junit.client.GWTTestCase;
 import java.util.Date;
 import java.util.List;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
 
 import org.fusesource.restygwt.client.Defaults;
 import org.fusesource.restygwt.client.DirectRestService;

@@ -43,9 +43,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 import org.fusesource.restygwt.client.AbstractJsonEncoderDecoder;
 import org.fusesource.restygwt.client.AbstractNestedJsonEncoderDecoder;
