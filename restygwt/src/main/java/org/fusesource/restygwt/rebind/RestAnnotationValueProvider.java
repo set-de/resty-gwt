@@ -180,7 +180,7 @@ public class RestAnnotationValueProvider {
 
     if (SPRING_MVC_AVAILABLE) {
       PathVariable pathVariable = getAnnotation(arg, PathVariable.class);
-      System.out.println(pathVariable);
+
       if (pathVariable != null) {
         paramPathValue = pathVariable.name();
       }
@@ -222,7 +222,7 @@ public class RestAnnotationValueProvider {
     if (SPRING_MVC_AVAILABLE) {
       RequestParam requestParam = getAnnotation(arg, RequestParam.class);
       if (requestParam != null) {
-        formParamValue = requestParam.value();
+        formParamValue = requestParam.name();
       }
     }
 
@@ -242,7 +242,7 @@ public class RestAnnotationValueProvider {
     if (SPRING_MVC_AVAILABLE) {
       RequestParam requestParam = getAnnotation(arg, RequestParam.class);
       if (requestParam != null) {
-        queryParamValue = requestParam.value();
+        queryParamValue = requestParam.name();
       }
     }
 

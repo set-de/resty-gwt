@@ -60,9 +60,7 @@ public class AnnotationCopyUtil {
 
             // Strip regex expressions from Path annotation value
             if (RestAnnotationValueProvider.isPathValue(annotation, method)) {
-                System.out.println("HERE!");
                 encodedValue = encodedValue.replaceAll("\\{\\s*(\\S+)\\s*:\\s*[^{}]+\\}", "{$1}");
-                System.out.println("after replace: " + encodedValue);
             }
 
             if (encodedValue != null) {

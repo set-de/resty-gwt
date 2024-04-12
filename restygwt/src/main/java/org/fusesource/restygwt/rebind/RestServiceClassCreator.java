@@ -374,10 +374,6 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
   private String pathExpression(String pathExpression, JParameter arg, String paramPathValue) throws UnableToCompleteException {
     String expr = toStringExpression(arg);
-    System.out.println("Expression: " + expr);
-    System.out.println("Param Path value: " + paramPathValue);
-    System.out.println(pathExpression.replaceAll(Pattern.quote("{" + paramPathValue) + "(\\s*:\\s*([^{}][^{}]*))*\\}",
-        "\"+(" + expr + "== null? null : com.google.gwt.http.client.URL.encodePathSegment(" + expr + "))+\""));
     return pathExpression.replaceAll(Pattern.quote("{" + paramPathValue) + "(\\s*:\\s*([^{}][^{}]*))*\\}",
         "\"+(" + expr + "== null? null : com.google.gwt.http.client.URL.encodePathSegment(" + expr + "))+\"");
   }
