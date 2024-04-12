@@ -64,6 +64,14 @@
         </license>
     </licenses>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/keeps/resty-gwt</url>
+          </repository>
+    </distributionManagement>
+
     <scm>
         <connection>scm:git:git://github.com/resty-gwt/resty-gwt.git</connection>
         <developerConnection>scm:git:git@github.com:resty-gwt/resty-gwt.git</developerConnection>
