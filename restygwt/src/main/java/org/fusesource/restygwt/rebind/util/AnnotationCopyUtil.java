@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.restygwt.rebind.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
+import com.google.gwt.core.client.GWT;
 import jakarta.ws.rs.Path;
+import org.fusesource.restygwt.rebind.RestAnnotationValueProvider;
 
 /**
  * An utility class that gets a String representation of an annotation.
@@ -58,8 +59,10 @@ public class AnnotationCopyUtil {
             String encodedValue = encodeAnnotationValue(value);
 
             // Strip regex expressions from Path annotation value
-            if (Path.class == annotation.annotationType()) {
+            if (RestAnnotationValueProvider.isPathValue(annotation, method)) {
+                System.out.println("HERE!");
                 encodedValue = encodedValue.replaceAll("\\{\\s*(\\S+)\\s*:\\s*[^{}]+\\}", "{$1}");
+                System.out.println("after replace: " + encodedValue);
             }
 
             if (encodedValue != null) {
@@ -105,6 +108,8 @@ public class AnnotationCopyUtil {
                 return readBooleanValue((Boolean) value);
             } else if (value instanceof Class) {
                 return readClassValue((Class) value);
+            } else if(value instanceof Enum) {
+                return value.getClass().getName() + "." + ((Enum)value).name();
             }
         }
 
