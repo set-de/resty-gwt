@@ -26,19 +26,20 @@
     <parent>
         <groupId>org.fusesource.restygwt</groupId>
         <artifactId>restygwt-examples</artifactId>
-        <version>2.2.9-keeps</version>
+        <version>2.2.8-SNAPSHOT</version>
     </parent>
-    <artifactId>restygwt-overlay-example</artifactId>
-    <version>2.2.9-keeps</version>
+    <artifactId>restygwt-jersey-jaxb-example</artifactId>
+    <version>2.2.8-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>RestyGWT Overlay Example</name>
+    <name>RestyGWT Jersey JAXB Example</name>
 
-    <description>
-        RestyGWT Examples
-    </description>
+    <properties>
+        <jersey-version>1.1.2-ea</jersey-version>
+    </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
@@ -47,9 +48,21 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.9.6</version>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${jersey-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>${jersey-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+            <version>1.0</version>
             <scope>provided</scope>
         </dependency>
 
