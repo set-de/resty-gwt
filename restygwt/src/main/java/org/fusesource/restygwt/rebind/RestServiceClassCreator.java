@@ -125,6 +125,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
   private static final String METHOD_JSONP = "jsonp";
   private static final String METHOD_PUT = "put";
+  private static final String METHOD_PATCH = "patch";
   private static final String METHOD_POST = "post";
   private static final String METHOD_OPTIONS = "options";
   private static final String METHOD_HEAD = "head";
@@ -145,6 +146,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     REST_METHODS.add(METHOD_OPTIONS);
     REST_METHODS.add(METHOD_POST);
     REST_METHODS.add(METHOD_PUT);
+    REST_METHODS.add(METHOD_PATCH);
     REST_METHODS.add(METHOD_JSONP);
   }
 
@@ -639,13 +641,10 @@ public class RestServiceClassCreator extends BaseSourceCreator {
         } else if (contentArg.getType() == DOCUMENT_TYPE) {
           p("__method.xml(" + contentArg.getName() + ");");
         } else {
-          JClassType contentClass = contentArg.getType().isClass();
+          JClassType contentClass = contentArg.getType().isClassOrInterface();
           if (contentClass == null) {
-            contentClass = contentArg.getType().isClassOrInterface();
-            if (!locator.isCollectionType(contentClass)) {
-              getLogger().log(ERROR, "Content argument must be a class.");
-              throw new UnableToCompleteException();
-            }
+            getLogger().log(ERROR, "Content argument must be a class.");
+            throw new UnableToCompleteException();
           }
 
           jsonAnnotation = getAnnotation(contentArg, Json.class);
