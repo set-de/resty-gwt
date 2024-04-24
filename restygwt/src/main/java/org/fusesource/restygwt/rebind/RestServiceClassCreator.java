@@ -86,11 +86,10 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.xml.client.Document;
 
 /**
- *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
- *
- *         Updates: added automatically create resource from Path annotation,
- *         enhanced generics support
+ * <p>
+ * Updates: added automatically create resource from Path annotation,
+ * enhanced generics support
  * @author <a href="http://www.acuedo.com">Dave Finch</a>
  */
 public class RestServiceClassCreator extends BaseSourceCreator {
@@ -134,11 +133,6 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
   private static final String APPLICATION_JSON = "application/json";
 
-  /**
-   * Set of allowed request methods.
-   */
-  private static final HashSet<String> REST_METHODS = new HashSet<String>(8);
-
   static {
     REST_METHODS.add(METHOD_DELETE);
     REST_METHODS.add(METHOD_GET);
@@ -158,6 +152,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
   private JClassType DOCUMENT_TYPE;
   private JClassType METHOD_TYPE;
   private JClassType STRING_TYPE;
+  private JClassType DATE_TYPE;
   private JClassType JSON_VALUE_TYPE;
   private JClassType OVERLAY_VALUE_TYPE;
   private Set<JClassType> OVERLAY_ARRAY_TYPES;
@@ -171,17 +166,6 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     super(logger, context, source, REST_SERVICE_PROXY_SUFFIX);
   }
 
-  private static String getPathFromSource(HasAnnotations annotatedType) {
-    String pathValue = RestAnnotationValueProvider.getPathValue(annotatedType);
-
-    RemoteServiceRelativePath relativePath = getAnnotation(annotatedType, RemoteServiceRelativePath.class);
-    if (relativePath != null) {
-      pathValue = relativePath.value();
-    }
-
-    return pathValue;
-  }
-
   @Override
   protected ClassSourceFileComposerFactory createComposerFactory() {
     String parameters = "";
@@ -191,8 +175,9 @@ public class RestServiceClassCreator extends BaseSourceCreator {
       builder.append("<");
       boolean first = true;
       for (JTypeParameter arg : gtype.getTypeParameters()) {
-        if (!first)
+        if (!first) {
           builder.append(",");
+        }
         builder.append(arg.getName());
         builder.append(" extends ");
         builder.append(arg.getFirstBound().getParameterizedQualifiedSourceName());
@@ -202,7 +187,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
       parameters = builder.toString();
     }
 
-    ClassSourceFileComposerFactory composerFactory = new ClassSourceFileComposerFactory(packageName, shortName + parameters);
+    ClassSourceFileComposerFactory composerFactory =
+        new ClassSourceFileComposerFactory(packageName, shortName + parameters);
     composerFactory.addImplementedInterface(source.getParameterizedQualifiedSourceName());
     composerFactory.addImplementedInterface(RestServiceProxy.class.getName());
     return composerFactory;
@@ -217,31 +203,33 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     }
 
     // true, if plain text autodetection for strings should be used
-    autodetectTypeForStrings = getBooleanProperty(getLogger(), context.getPropertyOracle(), PLAIN_TEXT_AUTODETECTION_CONFIGURATION_PROPERTY_NAME, false);
+    autodetectTypeForStrings = getBooleanProperty(getLogger(), context.getPropertyOracle(),
+        PLAIN_TEXT_AUTODETECTION_CONFIGURATION_PROPERTY_NAME, false);
 
     locator = EncoderDecoderLocatorFactory.getEncoderDecoderInstanceLocator(context, getLogger());
 
-    this.XML_CALLBACK_TYPE = find(XmlCallback.class, getLogger(), context);
-    this.METHOD_CALLBACK_TYPE = find(MethodCallback.class, getLogger(), context);
-    this.TEXT_CALLBACK_TYPE = find(TextCallback.class, getLogger(), context);
-    this.JSON_CALLBACK_TYPE = find(JsonCallback.class, getLogger(), context);
-    this.OVERLAY_CALLBACK_TYPE = find(OverlayCallback.class, getLogger(), context);
-    this.DOCUMENT_TYPE = find(Document.class, getLogger(), context);
-    this.METHOD_TYPE = find(Method.class, getLogger(), context);
-    this.STRING_TYPE = find(String.class, getLogger(), context);
-    this.JSON_VALUE_TYPE = find(JSONValue.class, getLogger(), context);
-    this.OVERLAY_VALUE_TYPE = find(JavaScriptObject.class, getLogger(), context);
-    this.OVERLAY_ARRAY_TYPES = new HashSet<JClassType>();
-    this.OVERLAY_ARRAY_TYPES.add(find(JsArray.class, getLogger(), context));
-    this.OVERLAY_ARRAY_TYPES.add(find(JsArrayBoolean.class, getLogger(), context));
-    this.OVERLAY_ARRAY_TYPES.add(find(JsArrayInteger.class, getLogger(), context));
-    this.OVERLAY_ARRAY_TYPES.add(find(JsArrayNumber.class, getLogger(), context));
-    this.OVERLAY_ARRAY_TYPES.add(find(JsArrayString.class, getLogger(), context));
-    this.QUERY_PARAM_LIST_TYPES = new HashSet<JClassType>();
-    this.QUERY_PARAM_LIST_TYPES.add(find(Collection.class, getLogger(), context));
-    this.QUERY_PARAM_LIST_TYPES.add(find(List.class, getLogger(), context));
-    this.QUERY_PARAM_LIST_TYPES.add(find(Set.class, getLogger(), context));
-    this.REST_SERVICE_TYPE = find(RestService.class, getLogger(), context);
+    XML_CALLBACK_TYPE = find(XmlCallback.class, getLogger(), context);
+    METHOD_CALLBACK_TYPE = find(MethodCallback.class, getLogger(), context);
+    TEXT_CALLBACK_TYPE = find(TextCallback.class, getLogger(), context);
+    JSON_CALLBACK_TYPE = find(JsonCallback.class, getLogger(), context);
+    OVERLAY_CALLBACK_TYPE = find(OverlayCallback.class, getLogger(), context);
+    DOCUMENT_TYPE = find(Document.class, getLogger(), context);
+    METHOD_TYPE = find(Method.class, getLogger(), context);
+    STRING_TYPE = find(String.class, getLogger(), context);
+    DATE_TYPE = find(Date.class, getLogger(), context);
+    JSON_VALUE_TYPE = find(JSONValue.class, getLogger(), context);
+    OVERLAY_VALUE_TYPE = find(JavaScriptObject.class, getLogger(), context);
+    OVERLAY_ARRAY_TYPES = new HashSet<JClassType>();
+    OVERLAY_ARRAY_TYPES.add(find(JsArray.class, getLogger(), context));
+    OVERLAY_ARRAY_TYPES.add(find(JsArrayBoolean.class, getLogger(), context));
+    OVERLAY_ARRAY_TYPES.add(find(JsArrayInteger.class, getLogger(), context));
+    OVERLAY_ARRAY_TYPES.add(find(JsArrayNumber.class, getLogger(), context));
+    OVERLAY_ARRAY_TYPES.add(find(JsArrayString.class, getLogger(), context));
+    QUERY_PARAM_LIST_TYPES = new HashSet<JClassType>();
+    QUERY_PARAM_LIST_TYPES.add(find(Collection.class, getLogger(), context));
+    QUERY_PARAM_LIST_TYPES.add(find(List.class, getLogger(), context));
+    QUERY_PARAM_LIST_TYPES.add(find(Set.class, getLogger(), context));
+    REST_SERVICE_TYPE = find(RestService.class, getLogger(), context);
 
     String path = getPathFromSource(source);
 
@@ -300,11 +288,23 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
     for (JMethod method : source.getInheritableMethods()) {
       JClassType iface = method.getReturnType().isInterface();
-      if (iface != null && REST_SERVICE_TYPE.isAssignableFrom(iface))
+      if (iface != null && REST_SERVICE_TYPE.isAssignableFrom(iface)) {
         writeSubresourceLocatorImpl(method);
-      else
+      } else {
         writeMethodImpl(method, options);
+      }
     }
+  }
+
+  private static String getPathFromSource(HasAnnotations annotatedType) {
+    String pathValue = RestAnnotationValueProvider.getPathValue(annotatedType);
+
+    RemoteServiceRelativePath relativePath = getAnnotation(annotatedType, RemoteServiceRelativePath.class);
+    if (relativePath != null) {
+      pathValue = relativePath.value();
+    }
+
+    return pathValue;
   }
 
   private String quote(String path) {
@@ -336,7 +336,9 @@ public class RestServiceClassCreator extends BaseSourceCreator {
   private void writeSubresourceLocatorImpl(JMethod method) throws UnableToCompleteException {
     JClassType iface = method.getReturnType().isInterface();
     if (iface == null || !REST_SERVICE_TYPE.isAssignableFrom(iface)) {
-      getLogger().log(ERROR, "Invalid subresource locator method. Method must have return type of an interface that extends RestService: " + method.getReadableDeclaration());
+      getLogger().log(ERROR,
+          "Invalid subresource locator method. Method must have return type of an interface that extends " +
+              "RestService: " + method.getReadableDeclaration());
       throw new UnableToCompleteException();
     }
 
@@ -367,7 +369,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
         throw new UnsupportedOperationException("Subresource method may not return: " + type);
       }
       p(method.getReturnType().getQualifiedSourceName() + " __subresource = new " + name + "();");
-      p("((" + RestServiceProxy.class.getName() + ")__subresource).setResource(getResource().resolve(" + pathExpression + "));");
+      p("((" + RestServiceProxy.class.getName() + ")__subresource).setResource(getResource().resolve(" +
+          pathExpression + "));");
       p("((" + RestServiceProxy.class.getName() + ")__subresource).setDispatcher(getDispatcher());");
       p("return __subresource;");
     }
@@ -414,14 +417,16 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     if (method.getReturnType() != JPrimitiveType.VOID) {
       if (!method.getReturnType().getQualifiedSourceName().equals(Request.class.getName()) &&
           !method.getReturnType().getQualifiedSourceName().equals(JsonpRequest.class.getName())) {
-        getLogger().log(ERROR, "Invalid rest method. Method must have void, Request or JsonpRequest return types: " + method.getReadableDeclaration());
+        getLogger().log(ERROR,
+            "Invalid rest method. Method must have void, Request or JsonpRequest return types: " +
+                method.getReadableDeclaration());
         throw new UnableToCompleteException();
       }
       returnRequest = true;
     }
 
     Json jsonAnnotation = getAnnotation(source, Json.class);
-    final Style classStyle = jsonAnnotation != null ? jsonAnnotation.style() : Style.DEFAULT;
+    Style classStyle = jsonAnnotation != null ? jsonAnnotation.style() : Style.DEFAULT;
 
     Options options = getAnnotation(method, Options.class);
 
@@ -429,23 +434,24 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     {
       String restMethod = getRestMethod(method);
       LinkedList<JParameter> args = new LinkedList<JParameter>(Arrays.asList(method.getParameters()));
-      for (final JParameter arg : args.subList(0, args.size() - 1)) {
-        p("final "
-            + arg.getType().getParameterizedQualifiedSourceName()
-            + " final_" + arg.getName() + " = " + arg.getName()
-            + ";");
+      for (JParameter arg : args.subList(0, args.size() - 1)) {
+        p("final " + arg.getType().getParameterizedQualifiedSourceName() + " final_" + arg.getName() + " = " +
+            arg.getName() + ";");
       }
 
       // the last arg should be the callback.
       if (args.isEmpty()) {
-        getLogger().log(ERROR, "Invalid rest method. Method must declare at least a callback argument: " + method.getReadableDeclaration());
+        getLogger().log(ERROR, "Invalid rest method. Method must declare at least a callback argument: " +
+            method.getReadableDeclaration());
         throw new UnableToCompleteException();
       }
       JParameter callbackArg = args.removeLast();
       JClassType callbackType = callbackArg.getType().isClassOrInterface();
       JClassType methodCallbackType = METHOD_CALLBACK_TYPE;
       if (callbackType == null || !callbackType.isAssignableTo(methodCallbackType)) {
-        getLogger().log(ERROR, "Invalid rest method. Last argument must be a " + methodCallbackType.getName() + " type: " + method.getReadableDeclaration());
+        getLogger().log(ERROR,
+            "Invalid rest method. Last argument must be a " + methodCallbackType.getName() + " type: " +
+                method.getReadableDeclaration());
         throw new UnableToCompleteException();
       }
       JClassType resultType = getCallbackTypeGenericClass(callbackType);
@@ -465,7 +471,9 @@ public class RestServiceClassCreator extends BaseSourceCreator {
         String paramPathValue = RestAnnotationValueProvider.getParamPathValue(arg);
         if (paramPathValue != null) {
           if (pathExpression == null) {
-            getLogger().log(ERROR, "Invalid rest method.  Invalid @PathParam annotation. Method is missing the @Path annotation: " + method.getReadableDeclaration());
+            getLogger().log(ERROR,
+                "Invalid rest method.  Invalid @PathParam annotation. Method is missing the @Path " +
+                    "annotation: " + method.getReadableDeclaration());
             throw new UnableToCompleteException();
           }
           pathExpression = pathExpression(pathExpression, arg, paramPathValue);
@@ -496,12 +504,14 @@ public class RestServiceClassCreator extends BaseSourceCreator {
         }
 
         if (!formParams.isEmpty()) {
-          getLogger().log(ERROR, "You can not have both @FormParam parameters and a content parameter: " + method.getReadableDeclaration());
+          getLogger().log(ERROR, "You can not have both @FormParam parameters and a content parameter: " +
+              method.getReadableDeclaration());
           throw new UnableToCompleteException();
         }
 
         if (contentArg != null) {
-          getLogger().log(ERROR, "Invalid rest method. Only one content parameter is supported: " + method.getReadableDeclaration());
+          getLogger().log(ERROR, "Invalid rest method. Only one content parameter is supported: " +
+              method.getReadableDeclaration());
           throw new UnableToCompleteException();
         }
         contentArg = arg;
@@ -521,7 +531,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
       // Handle JSONP specific configuration...
       JSONP jsonpAnnotation = getAnnotation(method, JSONP.class);
 
-      final boolean isJsonp = restMethod.equals(METHOD_JSONP) && jsonpAnnotation != null;
+      boolean isJsonp = restMethod.equals(METHOD_JSONP) && jsonpAnnotation != null;
 
       p("final " + (isJsonp ? JSONP_METHOD_CLASS : METHOD_CLASS) + " __method =");
 
@@ -533,8 +543,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
         String expr = entry.getValue().getName();
         JClassType type = entry.getValue().getType().isClassOrInterface();
         if (type != null && isQueryParamListType(type)) {
-          p(".addQueryParams(" + wrap(entry.getKey()) + ", " +
-              toIteratedStringExpression(entry.getValue()) + ")");
+          p(".addQueryParams(" + wrap(entry.getKey()) + ", " + toIteratedStringExpression(entry.getValue()) +
+              ")");
         } else {
           p(".addQueryParam(" + wrap(entry.getKey()) + ", " +
               toStringExpression(entry.getValue().getType(), expr) + ")");
@@ -544,19 +554,24 @@ public class RestServiceClassCreator extends BaseSourceCreator {
       p("." + restMethod + "();");
 
       if (isJsonp) {
-        if (returnRequest && !method.getReturnType().getQualifiedSourceName().equals(JsonpRequest.class.getName())) {
-          getLogger().log(ERROR, "Invalid rest method. JSONP method must have void or JsonpRequest return types: " + method.getReadableDeclaration());
+        if (returnRequest &&
+            !method.getReturnType().getQualifiedSourceName().equals(JsonpRequest.class.getName())) {
+          getLogger().log(ERROR,
+              "Invalid rest method. JSONP method must have void or JsonpRequest return types: " +
+                  method.getReadableDeclaration());
           throw new UnableToCompleteException();
         }
-        if (jsonpAnnotation.callbackParam().length() > 0) {
+        if (!jsonpAnnotation.callbackParam().isEmpty()) {
           p("__method.callbackParam(" + wrap(jsonpAnnotation.callbackParam()) + ");");
         }
-        if (jsonpAnnotation.failureCallbackParam().length() > 0) {
+        if (!jsonpAnnotation.failureCallbackParam().isEmpty()) {
           p("__method.failureCallbackParam(" + wrap(jsonpAnnotation.failureCallbackParam()) + ");");
         }
       } else {
         if (returnRequest && !method.getReturnType().getQualifiedSourceName().equals(Request.class.getName())) {
-          getLogger().log(ERROR, "Invalid rest method. Non JSONP method must have void or Request return types: " + method.getReadableDeclaration());
+          getLogger().log(ERROR,
+              "Invalid rest method. Non JSONP method must have void or Request return types: " +
+                  method.getReadableDeclaration());
           throw new UnableToCompleteException();
         }
       }
@@ -566,7 +581,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
       String contentTypeHeaderValue = null;
 
       if (jsonpAnnotation == null) {
-        final String acceptHeader;
+        String acceptHeader;
         String producesFirstValue = RestAnnotationValueProvider.getProducesFirstValue(method);
         if (producesFirstValue != null) {
           // Do not use autodetection, if accept type already set
@@ -591,13 +606,15 @@ public class RestServiceClassCreator extends BaseSourceCreator {
           if (split > 0) {
             contentTypeHeaderValue = contentTypeHeaderValue.substring(0, split).trim();
           }
-          p("__method.header(" + RESOURCE_CLASS + ".HEADER_CONTENT_TYPE, " + wrap(contentTypeHeaderValue) + ");");
+          p("__method.header(" + RESOURCE_CLASS + ".HEADER_CONTENT_TYPE, " + wrap(contentTypeHeaderValue) +
+              ");");
         }
 
         // and set the explicit headers now (could override the accept header)
         for (Map.Entry<String, JParameter> entry : headerParams.entrySet()) {
           String expr = entry.getValue().getName();
-          p("__method.header(" + wrap(entry.getKey()) + ", " + toStringExpression(entry.getValue().getType(), expr) + ");");
+          p("__method.header(" + wrap(entry.getKey()) + ", " +
+              toStringExpression(entry.getValue().getType(), expr) + ");");
         }
       }
 
@@ -605,18 +622,13 @@ public class RestServiceClassCreator extends BaseSourceCreator {
         p(FORM_POST_CONTENT_CLASS + " __formPostContent = new " + FORM_POST_CONTENT_CLASS + "();");
 
         for (Map.Entry<String, JParameter> entry : formParams.entrySet()) {
-          JClassType type = entry.getValue().getType()
-              .isClassOrInterface();
+          JClassType type = entry.getValue().getType().isClassOrInterface();
           if (type != null && isQueryParamListType(type)) {
-            p("__formPostContent.addParameters(" +
-                wrap(entry.getKey()) + ", " +
-                toIteratedFormStringExpression(entry.getValue(), classStyle) +
-                ");");
+            p("__formPostContent.addParameters(" + wrap(entry.getKey()) + ", " +
+                toIteratedFormStringExpression(entry.getValue(), classStyle) + ");");
           } else {
-            p("__formPostContent.addParameter(" +
-                wrap(entry.getKey()) + ", " +
-                toFormStringExpression(entry.getValue(), classStyle) +
-                ");");
+            p("__formPostContent.addParameter(" + wrap(entry.getKey()) + ", " +
+                toFormStringExpression(entry.getValue(), classStyle) + ");");
           }
         }
 
@@ -625,7 +637,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
       if (contentArg != null) {
         if (contentArg.getType() == STRING_TYPE) {
-          if (autodetectTypeForStrings && APPLICATION_JSON.equals(contentTypeHeaderValue)) {
+          if (autodetectTypeForStrings && MediaType.APPLICATION_JSON.equals(contentTypeHeaderValue)) {
             p("__method.json(new " + JSON_STRING_CLASS + "(" + contentArg.getName() + "));");
           } else {
             p("__method.text(" + contentArg.getName() + ");");
@@ -659,17 +671,19 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
 
       List<AnnotationResolver> annotationResolvers = getAnnotationResolvers(context, getLogger());
-      getLogger().log(TreeLogger.DEBUG, "found " + annotationResolvers.size() + " additional AnnotationResolvers");
+      getLogger()
+          .log(TreeLogger.DEBUG, "found " + annotationResolvers.size() + " additional AnnotationResolvers");
 
       for (AnnotationResolver a : annotationResolvers) {
-        getLogger().log(TreeLogger.DEBUG, "(" + a.getClass().getName() + ") resolve `" + source.getName()
-            + "#" + method.getName() + "´ ...");
-        final Map<String, String[]> addDataParams = a.resolveAnnotation(getLogger(), source, method, restMethod);
+        getLogger().log(TreeLogger.DEBUG,
+            "(" + a.getClass().getName() + ") resolve `" + source.getName() + "#" + method.getName() + "´ ...");
+        Map<String, String[]> addDataParams =
+            a.resolveAnnotation(getLogger(), source, method, restMethod);
 
         if (addDataParams != null) {
           for (String s : addDataParams.keySet()) {
-            final StringBuilder sb = new StringBuilder();
-            final List<String> classList = Arrays.asList(addDataParams.get(s));
+            StringBuilder sb = new StringBuilder();
+            List<String> classList = Arrays.asList(addDataParams.get(s));
 
             sb.append("[");
             for (int i = 0; i < classList.size(); ++i) {
@@ -681,8 +695,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
             }
             sb.append("]");
 
-            getLogger().log(TreeLogger.DEBUG, "add call with (\"" + s + "\", \"" +
-                sb.toString() + "\")");
+            getLogger().log(TreeLogger.DEBUG, "add call with (\"" + s + "\", \"" + sb.toString() + "\")");
             p("__method.addData(\"" + s + "\", \"" + sb.toString() + "\");");
           }
         }
@@ -693,10 +706,12 @@ public class RestServiceClassCreator extends BaseSourceCreator {
         // TODO: shouldn't we also have a cach in here?
         p(returnRequest(returnRequest, isJsonp) + "__method.send(" + callbackArg.getName() + ");");
       } else if (isJsonp) {
-        p(returnRequest(returnRequest, isJsonp) + "__method.send(new " + ABSTRACT_ASYNC_CALLBACK_CLASS + "<" + resultType.getParameterizedQualifiedSourceName() + ">(__method, "
-            + callbackArg.getName() + ") {").i(1);
+        p(returnRequest(returnRequest, isJsonp) + "__method.send(new " + ABSTRACT_ASYNC_CALLBACK_CLASS + "<" +
+            resultType.getParameterizedQualifiedSourceName() + ">(__method, " + callbackArg.getName() + ") {")
+            .i(1);
         {
-          p("protected " + resultType.getParameterizedQualifiedSourceName() + " parseResult(" + JSON_VALUE_CLASS + " result) throws Exception {").i(1);
+          p("protected " + resultType.getParameterizedQualifiedSourceName() + " parseResult(" +
+              JSON_VALUE_CLASS + " result) throws Exception {").i(1);
           {
             if (resultType.getParameterizedQualifiedSourceName().equals("java.lang.Void")) {
               p("return (java.lang.Void) null;");
@@ -704,7 +719,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
               p("try {").i(1);
               {
                 if (resultType.isAssignableTo(locator.getListType())) {
-                  p("result = new " + JSON_ARRAY_CLASS + "(((" + JSON_OBJECT_CLASS + ")result).getJavaScriptObject());");
+                  p("result = new " + JSON_ARRAY_CLASS + "(((" + JSON_OBJECT_CLASS +
+                      ")result).getJavaScriptObject());");
                 }
                 jsonAnnotation = getAnnotation(method, Json.class);
                 Style style = jsonAnnotation != null ? jsonAnnotation.style() : classStyle;
@@ -712,7 +728,9 @@ public class RestServiceClassCreator extends BaseSourceCreator {
               }
               i(-1).p("} catch (Throwable __e) {").i(1);
               {
-                p("throw new " + RESPONSE_FORMAT_EXCEPTION_CLASS + "(\"Response was NOT a valid JSON document\", __e);");
+                p("throw new " + RESPONSE_FORMAT_EXCEPTION_CLASS +
+                    "(\"Response was NOT a valid JSON document\", __e, __method.getRequest()," +
+                    " __method.getResponse());");
               }
               i(-1).p("}");
             }
@@ -723,10 +741,12 @@ public class RestServiceClassCreator extends BaseSourceCreator {
       } else {
         p("try {").i(1);
         {
-          p(returnRequest(returnRequest, isJsonp) + "__method.send(new " + ABSTRACT_REQUEST_CALLBACK_CLASS + "<" + resultType.getParameterizedQualifiedSourceName() + ">(__method, "
-              + callbackArg.getName() + ") {").i(1);
+          p(returnRequest(returnRequest, isJsonp) + "__method.send(new " + ABSTRACT_REQUEST_CALLBACK_CLASS +
+              "<" + resultType.getParameterizedQualifiedSourceName() + ">(__method, " +
+              callbackArg.getName() + ") {").i(1);
           {
-            p("protected " + resultType.getParameterizedQualifiedSourceName() + " parseResult() throws Exception {").i(1);
+            p("protected " + resultType.getParameterizedQualifiedSourceName() +
+                " parseResult() throws Exception {").i(1);
             {
               if (resultType.getParameterizedQualifiedSourceName().equals("java.lang.Void")) {
                 p("return (java.lang.Void) null;");
@@ -735,11 +755,14 @@ public class RestServiceClassCreator extends BaseSourceCreator {
                 {
                   jsonAnnotation = getAnnotation(method, Json.class);
                   Style style = jsonAnnotation != null ? jsonAnnotation.style() : classStyle;
-                  p("return " + locator.decodeExpression(resultType, JSON_PARSER_CLASS + ".parse(__method.getResponse().getText())", style) + ";");
+                  p("return " + locator.decodeExpression(resultType,
+                      JSON_PARSER_CLASS + ".parse(__method.getResponse().getText())", style) + ";");
                 }
                 i(-1).p("} catch (Throwable __e) {").i(1);
                 {
-                  p("throw new " + RESPONSE_FORMAT_EXCEPTION_CLASS + "(\"Response was NOT a valid JSON document\", __e);");
+                  p("throw new " + RESPONSE_FORMAT_EXCEPTION_CLASS +
+                      "(\"Response was NOT a valid JSON document\", __e, __method.getRequest()," +
+                      " __method.getResponse());");
                 }
                 i(-1).p("}");
               }
@@ -761,7 +784,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     i(-1).p("}");
   }
 
-  private <T extends Annotation> T findAnnotationOnMethodOrEnclosingType(final JMethod method, final Class<T> annotationType) {
+  private <T extends Annotation> T findAnnotationOnMethodOrEnclosingType(JMethod method,
+                                                                         Class<T> annotationType) {
     T annotation = getAnnotation(method, annotationType);
     if (annotation == null) {
       annotation = getAnnotation(method.getEnclosingType(), annotationType);
@@ -772,16 +796,19 @@ public class RestServiceClassCreator extends BaseSourceCreator {
   protected String toStringExpression(JParameter arg) throws UnableToCompleteException {
     Attribute attribute = getAnnotation(arg, Attribute.class);
     if (attribute != null) {
-      if (arg.getType().isClass().getField(attribute.value()) != null && arg.getType().isClass().getField(attribute.value()).isPublic()) {
+      if (arg.getType().isClass().getField(attribute.value()) != null &&
+          arg.getType().isClass().getField(attribute.value()).isPublic()) {
         return "(" + arg.getName() + "." + attribute.value() + "+ \"\")";
       }
-      String publicGetter = "get" + attribute.value().substring(0, 1).toUpperCase() + attribute.value().substring(1);
+      String publicGetter =
+          "get" + attribute.value().substring(0, 1).toUpperCase() + attribute.value().substring(1);
       for (JMethod jMethod : arg.getType().isClass().getMethods()) {
         if (jMethod.getName().equals(publicGetter)) {
           return "(" + arg.getName() + "." + publicGetter + "()" + "+ \"\")";
         }
       }
-      getLogger().log(ERROR, "Neither public argument " + attribute.value() + " nor public getter " + publicGetter + " found!");
+      getLogger().log(ERROR,
+          "Neither public argument " + attribute.value() + " nor public getter " + publicGetter + " found!");
       throw new UnableToCompleteException();
     }
     return toStringExpression(arg.getType(), arg.getName());
@@ -797,40 +824,48 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     if (STRING_TYPE == type) {
       return expr;
     }
-    if (type.isClass() != null &&
-        isOverlayArrayType(type.isClass())) {
+    if (type.isClass() != null && isOverlayArrayType(type.isClass())) {
       return "(new " + JSON_ARRAY_CLASS + "(" + expr + ")).toString()";
     }
-    if (type.isClass() != null &&
-        OVERLAY_VALUE_TYPE.isAssignableFrom(type.isClass())) {
+    if (type.isClass() != null && OVERLAY_VALUE_TYPE.isAssignableFrom(type.isClass())) {
       return "(new " + JSON_OBJECT_CLASS + "(" + expr + ")).toString()";
     }
-    if (type.getQualifiedBinaryName().startsWith("java.lang.") || type.isEnum() != null) {
+    if ((!isThrowable(type) && type.getQualifiedBinaryName().startsWith("java.lang.")) || type.isEnum() != null) {
       return String.format("(%s != null ? %s.toString() : null)", expr, expr);
     }
 
     Json jsonAnnotation = getAnnotation(argument, Json.class);
-    final Style style = jsonAnnotation != null ? jsonAnnotation.style() : classStyle;
+    Style style = jsonAnnotation != null ? jsonAnnotation.style() : classStyle;
 
     return locator.encodeExpression(type, expr, style) + ".toString()";
   }
 
-  protected String toIteratedFormStringExpression(JParameter argument, Style classStyle) throws UnableToCompleteException {
-    assert isQueryParamListType(argument.getType().isClassOrInterface());
-    final JClassType[] type_args = argument.getType().isParameterized().getTypeArgs();
-    assert (type_args.length == 1);
-    final JClassType class_type = type_args[0];
-    final String argument_expr = "final_"
-        + argument.getName();
+  private static boolean isThrowable(@Nonnull JType type) {
+    if (type.getQualifiedSourceName().equals(Throwable.class.getCanonicalName())) {
+      return true;
+    }
+    if (type instanceof JRealClassType && ((JRealClassType) type).getSuperclass() != null) {
+      return isThrowable(((JRealClassType) type).getSuperclass());
+    }
+    return false;
+  }
 
-    final StringBuilder result = new StringBuilder();
+  protected String toIteratedFormStringExpression(JParameter argument, Style classStyle)
+      throws UnableToCompleteException {
+    assert isQueryParamListType(argument.getType().isClassOrInterface());
+    JClassType[] type_args = argument.getType().isParameterized().getTypeArgs();
+    assert (type_args.length == 1);
+    JClassType class_type = type_args[0];
+    String argument_expr = "final_" + argument.getName();
+
+    StringBuilder result = new StringBuilder();
     result.append(argument_expr + " == null ? null : ");
     result.append("new java.lang.Iterable<String> () {\n");
     result.append(" @Override\n");
     result.append(" public java.util.Iterator<String> iterator() {\n");
-    result.append("     final java.util.Iterator<"
-        + class_type.getParameterizedQualifiedSourceName()
-        + "> baseIterator =  " + argument_expr + ".iterator();\n");
+    result.append(
+        "     final java.util.Iterator<" + class_type.getParameterizedQualifiedSourceName() + "> baseIterator =  " +
+            argument_expr + ".iterator();\n");
     result.append("     return new java.util.Iterator<String>() {\n");
     result.append("         @Override\n");
     result.append("         public boolean hasNext() {\n");
@@ -838,24 +873,22 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     result.append("         }\n");
     result.append("         @Override\n");
     result.append("         public String next() {\n");
-    final String expr = "baseIterator.next()";
+    String expr = "baseIterator.next()";
     String returnExpr;
     if (class_type.isPrimitive() != null) {
       returnExpr = "\"\"+" + expr;
     } else if (STRING_TYPE == class_type) {
       returnExpr = expr;
-    } else if (class_type.isClass() != null &&
-        isOverlayArrayType(class_type.isClass())) {
+    } else if (class_type.isClass() != null && isOverlayArrayType(class_type.isClass())) {
       returnExpr = "(new " + JSON_ARRAY_CLASS + "(" + expr + ")).toString()";
-    } else if (class_type.isClass() != null &&
-        OVERLAY_VALUE_TYPE.isAssignableFrom(class_type.isClass())) {
+    } else if (class_type.isClass() != null && OVERLAY_VALUE_TYPE.isAssignableFrom(class_type.isClass())) {
       returnExpr = "(new " + JSON_OBJECT_CLASS + "(" + expr + ")).toString()";
     } else if (class_type.getQualifiedBinaryName().startsWith("java.lang.")) {
       result.append("             Object obj = " + expr + ";");
       returnExpr = "obj != null ? obj.toString() : null";
     } else {
       Json jsonAnnotation = getAnnotation(argument, Json.class);
-      final Style style = jsonAnnotation != null ? jsonAnnotation.style() : classStyle;
+      Style style = jsonAnnotation != null ? jsonAnnotation.style() : classStyle;
       returnExpr = locator.encodeExpression(class_type, expr, style) + ".toString()";
     }
     result.append("             return " + returnExpr + ";\n");
@@ -871,19 +904,27 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     return result.toString();
   }
 
-  protected String toStringExpression(JType type, String expr) {
+  protected String toStringExpression(JType type, String expr) throws UnableToCompleteException {
     if (type.isPrimitive() != null) {
       return "\"\"+" + expr;
     }
     if (STRING_TYPE == type) {
       return expr;
     }
-    if (type.isClass() != null &&
-        isOverlayArrayType(type.isClass())) {
+
+    if (DATE_TYPE == type) {
+      String encoded = locator.encodeExpression(DATE_TYPE, expr, Style.DEFAULT);
+      return String.format(
+          "%s instanceof com.google.gwt.json.client.JSONString ?" +
+              " ((com.google.gwt.json.client.JSONString) %s).stringValue() :" +
+              " java.util.Objects.toString(%s, null)",
+          encoded, encoded, encoded);
+    }
+
+    if (type.isClass() != null && isOverlayArrayType(type.isClass())) {
       return "(new " + JSON_ARRAY_CLASS + "(" + expr + ")).toString()";
     }
-    if (type.isClass() != null &&
-        OVERLAY_VALUE_TYPE.isAssignableFrom(type.isClass())) {
+    if (type.isClass() != null && OVERLAY_VALUE_TYPE.isAssignableFrom(type.isClass())) {
       return "(new " + JSON_OBJECT_CLASS + "(" + expr + ")).toString()";
     }
 
@@ -892,8 +933,7 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
   protected String toIteratedStringExpression(JParameter arg) {
     StringBuilder result = new StringBuilder();
-    result.append("new org.fusesource.restygwt.client.StringIterable (")
-        .append(arg.getName()).append(")");
+    result.append("new org.fusesource.restygwt.client.StringIterable (").append(arg.getName()).append(")");
 
     return result.toString();
   }
@@ -915,7 +955,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
                 JType param2Type = parameters[1].getType();
                 JClassType type = param2Type.isClassOrInterface();
                 if (type == null) {
-                  getLogger().log(ERROR, "The type of the callback not supported: " + param2Type.getJNISignature());
+                  getLogger().log(ERROR,
+                      "The type of the callback not supported: " + param2Type.getJNISignature());
                   throw new UnableToCompleteException();
                 }
                 getLogger().log(DEBUG, "match: " + type);
@@ -924,7 +965,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
             }
           }
         }
-        getLogger().log(ERROR, "The type of the callback could not be determined: " + callbackType.getParameterizedQualifiedSourceName());
+        getLogger().log(ERROR, "The type of the callback could not be determined: " +
+            callbackType.getParameterizedQualifiedSourceName());
         throw new UnableToCompleteException();
       }
     });
@@ -932,18 +974,17 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
   /**
    * Returns the rest method.
-   * <p />
+   * <p/>
    * Iterates over the annotations and look for an annotation that is annotated with HttpMethod.
    *
    * @param method
-   * @return
-   * @throws UnableToCompleteException
-   *             <ul>
-   *             <li>If more than one annotation that is annotated with HttpMethod is present,</li>
-   *             <li>an invalid jax-rs method annotation is found or</li>
-   *             <li>no annotation was found and the method name does not match a valid jax-rs method</li>
-   *             </ul>
-   *             Valid means it is in the set {@link #REST_METHODS}
+   * @return the rest method.
+   * @throws UnableToCompleteException <ul>
+   *                                   <li>If more than one annotation that is annotated with HttpMethod is present,</li>
+   *                                   <li>an invalid jax-rs method annotation is found or</li>
+   *                                   <li>no annotation was found and the method name does not match a valid jax-rs method</li>
+   *                                   </ul>
+   *                                   Valid means it is in the set {@link #REST_METHODS}
    */
   String getRestMethod(JMethod method) throws UnableToCompleteException {
     String restMethod = RestAnnotationValueProvider.getRestMethod(method, getLogger());
@@ -952,7 +993,8 @@ public class RestServiceClassCreator extends BaseSourceCreator {
       // Allow custom methods later?
       restMethod = restMethod.toLowerCase();
       if (!REST_METHODS.contains(restMethod)) {
-        getLogger().log(ERROR, "Invalid rest method. It must have a javax rs method annotation: " + method.getReadableDeclaration());
+        getLogger().log(ERROR, "Invalid rest method. It must have a javax rs method annotation: " +
+            method.getReadableDeclaration());
         throw new UnableToCompleteException();
       }
     } else if (null != getAnnotation(method, JSONP.class)) {
@@ -960,7 +1002,9 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     } else {
       restMethod = method.getName();
       if (!REST_METHODS.contains(restMethod)) {
-        getLogger().log(ERROR, "Invalid rest method. It must either have a lower case rest method name or have a javax rs method annotation: " + method.getReadableDeclaration());
+        getLogger().log(ERROR,
+            "Invalid rest method. It must either have a lower case rest method name or have a javax rs method" +
+                " annotation: " + method.getReadableDeclaration());
         throw new UnableToCompleteException();
       }
     }
@@ -970,14 +1014,15 @@ public class RestServiceClassCreator extends BaseSourceCreator {
 
   /**
    * access additional AnnotationResolvers possibly added by
-   *
+   * <p>
    * {@link BindingDefaults#addAnnotationResolver(AnnotationResolver)}
+   *
    * @return
    */
   // TODO remove suppression
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private List<AnnotationResolver> getAnnotationResolvers(final GeneratorContext context, final TreeLogger logger) {
-    java.lang.reflect.Method m = null;
+  private List<AnnotationResolver> getAnnotationResolvers(GeneratorContext context, TreeLogger logger) {
+    java.lang.reflect.Method m;
     ArrayList args = new ArrayList();
     ArrayList types = new ArrayList();
 
@@ -992,25 +1037,20 @@ public class RestServiceClassCreator extends BaseSourceCreator {
     try {
       m = BINDING_DEFAULTS.getMethod("getAnnotationResolvers", argtypes);
     } catch (SecurityException e) {
-      throw new RuntimeException("could not call method `getAnnotationResolvers´ on "
-          + BINDING_DEFAULTS, e);
+      throw new RuntimeException("could not call method `getAnnotationResolvers´ on " + BINDING_DEFAULTS, e);
     } catch (NoSuchMethodException e) {
-      throw new RuntimeException("could not resolve method `getAnnotationResolvers´ on "
-          + BINDING_DEFAULTS, e);
+      throw new RuntimeException("could not resolve method `getAnnotationResolvers´ on " + BINDING_DEFAULTS, e);
     }
 
     List<AnnotationResolver> l = new ArrayList<AnnotationResolver>();
     try {
       l = (List<AnnotationResolver>) m.invoke(null, context, logger);
     } catch (IllegalArgumentException e) {
-      throw new RuntimeException("could not call method `getAnnotationResolvers´ on "
-          + BINDING_DEFAULTS, e);
+      throw new RuntimeException("could not call method `getAnnotationResolvers´ on " + BINDING_DEFAULTS, e);
     } catch (IllegalAccessException e) {
-      throw new RuntimeException("could not call method `getAnnotationResolvers´ on "
-          + BINDING_DEFAULTS, e);
+      throw new RuntimeException("could not call method `getAnnotationResolvers´ on " + BINDING_DEFAULTS, e);
     } catch (InvocationTargetException e) {
-      throw new RuntimeException("could not call method `getAnnotationResolvers´ on "
-          + BINDING_DEFAULTS, e);
+      throw new RuntimeException("could not call method `getAnnotationResolvers´ on " + BINDING_DEFAULTS, e);
     }
 
     return l;

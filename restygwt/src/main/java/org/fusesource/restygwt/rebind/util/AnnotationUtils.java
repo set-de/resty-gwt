@@ -60,7 +60,8 @@ public class AnnotationUtils {
   /**
    * Get all annotations from superclasses and superinterfaces.<br>
    * <br>
-   * Works like {@link JClassType#findAnnotationInTypeHierarchy(Class)} but returns all annotations in the type hierarchy.
+   * Works like {@link JClassType#findAnnotationInTypeHierarchy(Class)} but returns all annotations in the type
+   * hierarchy.
    *
    * @param classType
    * @return annotations
@@ -97,7 +98,7 @@ public class AnnotationUtils {
   }
 
   public static Annotation[] findSupportedAnnotations(Annotation[] annotations) {
-    List<Annotation> result = new ArrayList<>();
+    List<Annotation> result = new ArrayList<Annotation>();
     for (Annotation annotation : annotations) {
       String name = annotation.annotationType().getCanonicalName();
       if (name.startsWith("jakarta.ws.rs") || name.startsWith("org.springframework.web.bind.annotation") || name.startsWith("org.fusesource.restygwt.client")) {
