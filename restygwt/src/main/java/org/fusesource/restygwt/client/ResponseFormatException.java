@@ -28,12 +28,26 @@ import com.google.gwt.http.client.Response;
 public class ResponseFormatException extends RuntimeException {
 
   private static final long serialVersionUID = 1819275788939805070L;
+  private final Request request;
+  private final Response response;
 
-  public ResponseFormatException(String message, Throwable e) {
+  public ResponseFormatException(String message, Throwable e, Request request, Response response) {
     super(message, e);
+    this.request = request;
+    this.response = response;
   }
 
-  public ResponseFormatException(String message) {
+  public ResponseFormatException(String message, Request request, Response response) {
     super(message);
+    this.request = request;
+    this.response = response;
+  }
+
+  public Request getRequest() {
+    return request;
+  }
+
+  public Response getResponse() {
+    return response;
   }
 }

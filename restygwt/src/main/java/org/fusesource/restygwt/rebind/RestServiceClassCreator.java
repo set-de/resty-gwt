@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -33,6 +34,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.google.gwt.core.ext.typeinfo.JRealClassType;
+import jakarta.annotation.Nonnull;
+import jakarta.ws.rs.core.MediaType;
 import org.fusesource.restygwt.client.AbstractAsyncCallback;
 import org.fusesource.restygwt.client.AbstractRequestCallback;
 import org.fusesource.restygwt.client.Attribute;
@@ -131,7 +135,10 @@ public class RestServiceClassCreator extends BaseSourceCreator {
   private static final String METHOD_GET = "get";
   private static final String METHOD_DELETE = "delete";
 
-  private static final String APPLICATION_JSON = "application/json";
+  /**
+   * Set of allowed request methods.
+   */
+  private static final HashSet<String> REST_METHODS = new HashSet<String>(8);
 
   static {
     REST_METHODS.add(METHOD_DELETE);
