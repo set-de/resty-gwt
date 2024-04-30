@@ -23,27 +23,25 @@ import com.google.gwt.core.ext.typeinfo.HasAnnotations;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JMethod;
 import com.google.gwt.core.ext.typeinfo.JParameter;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
-import static org.fusesource.restygwt.rebind.BaseSourceCreator.ERROR;
-import static org.fusesource.restygwt.rebind.util.AnnotationUtils.getAnnotation;
-
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
-
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
+import static org.fusesource.restygwt.rebind.BaseSourceCreator.ERROR;
+import static org.fusesource.restygwt.rebind.util.AnnotationUtils.getAnnotation;
 
 /**
  * @author sj
@@ -266,11 +264,13 @@ public class RestAnnotationValueProvider {
 
     if (SPRING_MVC_AVAILABLE) {
       RequestMapping requestMapping = getAnnotation(method, RequestMapping.class);
-      if (requestMapping != null && requestMapping.produces() != null && requestMapping.produces().length > 1) {
+      assert requestMapping != null;
+      if (requestMapping.produces().length >= 1) {
         producesValue = requestMapping.produces()[0];
       } else {
         requestMapping = getAnnotation(method.getEnclosingType(), RequestMapping.class);
-        if (requestMapping != null && requestMapping.produces() != null && requestMapping.produces().length > 1) {
+        assert requestMapping != null;
+        if (requestMapping.produces().length >= 1) {
           producesValue = requestMapping.produces()[0];
         }
       }
