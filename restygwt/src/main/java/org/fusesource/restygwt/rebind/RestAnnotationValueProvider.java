@@ -20,22 +20,9 @@ package org.fusesource.restygwt.rebind;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.HasAnnotations;
-import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JMethod;
 import com.google.gwt.core.ext.typeinfo.JParameter;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.ws.rs.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -48,19 +35,9 @@ import static org.fusesource.restygwt.rebind.util.AnnotationUtils.getAnnotation;
  */
 public class RestAnnotationValueProvider {
 
-  private static final boolean SPRING_MVC_AVAILABLE;
   private static final boolean JAX_RS_AVAILABLE;
 
   static {
-    boolean springMvcAvailable = false;
-    try {
-      Class.forName("org.springframework.web.bind.annotation.RequestMapping");
-      springMvcAvailable = true;
-    } catch (ClassNotFoundException ex) {
-      // do nothing
-    }
-    SPRING_MVC_AVAILABLE = springMvcAvailable;
-
     boolean jaxRsAvailable = false;
     try {
       Class.forName("jakarta.ws.rs.Path");
@@ -90,23 +67,6 @@ public class RestAnnotationValueProvider {
       }
     }
 
-    if (SPRING_MVC_AVAILABLE) {
-      RequestMapping requestMapping = getAnnotation(method, RequestMapping.class);
-      if (null != requestMapping) {
-        RequestMethod[] requestMethods = requestMapping.method();
-        if (requestMethods != null) {
-          if (requestMethods.length == 1) {
-            restMethod = requestMethods[0].name().toLowerCase();
-          } else if (requestMethods.length > 1) {
-            logger.log(ERROR, "Invalid method. It is an error for a method to be annotated "
-                + "with @RequestMapping and more than one request method specified: "
-                + method.getReadableDeclaration());
-            throw new UnableToCompleteException();
-          }
-        }
-      }
-    }
-
     return restMethod;
   }
 
@@ -120,42 +80,11 @@ public class RestAnnotationValueProvider {
         path = pathAnnotation.value();
       }
     }
-
-    if (SPRING_MVC_AVAILABLE) {
-      RequestMapping requestMappingAnnotation = getAnnotation(annotatedType, RequestMapping.class);
-      if (requestMappingAnnotation != null) {
-        String[] paths = requestMappingAnnotation.path();
-        if (paths != null) {
-          if (paths.length == 1) {
-            path = paths[0];
-          } else if (paths.length > 1) {
-            if (annotatedType instanceof JMethod) {
-              logger.log(ERROR, "Invalid method. It is an error for a method to be annotated "
-                  + "with @RequestMapping and more than one paths specified: "
-                  + ((JMethod) annotatedType).getReadableDeclaration());
-            } else if (annotatedType instanceof JClassType) {
-              logger.log(ERROR, "Invalid method. It is an error for a class to be annotated "
-                  + "with @RequestMapping and more than one paths specified: "
-                  + ((JClassType) annotatedType).getName());
-            }
-            throw new UnableToCompleteException();
-          }
-        }
-      }
-    }
-
     return path;
   }
 
   public static boolean isPathValue(Annotation annotation, Method method) {
-    if (annotation.annotationType().getName().equals("jakarta.ws.rs.Path")) {
-      return true;
-    } else if (annotation.annotationType().getName().equals("org.springframework.web.bind.annotation.RequestMapping")
-        && method.getName().equals("path")) {
-      return true;
-    }
-
-    return false;
+      return annotation.annotationType().getName().equals("jakarta.ws.rs.Path");
   }
 
   public static String getPathValue(HasAnnotations annotatedType) {
@@ -175,15 +104,6 @@ public class RestAnnotationValueProvider {
         paramPathValue = paramPath.value();
       }
     }
-
-    if (SPRING_MVC_AVAILABLE) {
-      PathVariable pathVariable = getAnnotation(arg, PathVariable.class);
-
-      if (pathVariable != null) {
-        paramPathValue = pathVariable.name();
-      }
-    }
-
     return paramPathValue;
   }
 
@@ -194,13 +114,6 @@ public class RestAnnotationValueProvider {
       HeaderParam headerParam = getAnnotation(arg, HeaderParam.class);
       if (headerParam != null) {
         headerParamValue = headerParam.value();
-      }
-    }
-
-    if (SPRING_MVC_AVAILABLE) {
-      RequestHeader requestHeader = getAnnotation(arg, RequestHeader.class);
-      if (requestHeader != null) {
-        headerParamValue = requestHeader.value();
       }
     }
 
@@ -217,13 +130,6 @@ public class RestAnnotationValueProvider {
       }
     }
 
-    if (SPRING_MVC_AVAILABLE) {
-      RequestParam requestParam = getAnnotation(arg, RequestParam.class);
-      if (requestParam != null) {
-        formParamValue = requestParam.name();
-      }
-    }
-
     return formParamValue;
   }
 
@@ -234,13 +140,6 @@ public class RestAnnotationValueProvider {
       QueryParam queryParam = getAnnotation(arg, QueryParam.class);
       if (queryParam != null) {
         queryParamValue = queryParam.value();
-      }
-    }
-
-    if (SPRING_MVC_AVAILABLE) {
-      RequestParam requestParam = getAnnotation(arg, RequestParam.class);
-      if (requestParam != null) {
-        queryParamValue = requestParam.name();
       }
     }
 
@@ -262,20 +161,6 @@ public class RestAnnotationValueProvider {
       }
     }
 
-    if (SPRING_MVC_AVAILABLE) {
-      RequestMapping requestMapping = getAnnotation(method, RequestMapping.class);
-      assert requestMapping != null;
-      if (requestMapping.produces().length >= 1) {
-        producesValue = requestMapping.produces()[0];
-      } else {
-        requestMapping = getAnnotation(method.getEnclosingType(), RequestMapping.class);
-        assert requestMapping != null;
-        if (requestMapping.produces().length >= 1) {
-          producesValue = requestMapping.produces()[0];
-        }
-      }
-    }
-
     return producesValue;
   }
 
@@ -293,19 +178,6 @@ public class RestAnnotationValueProvider {
         }
       }
     }
-
-    if (SPRING_MVC_AVAILABLE) {
-      RequestMapping requestMapping = getAnnotation(method, RequestMapping.class);
-      if (requestMapping != null && requestMapping.produces() != null && requestMapping.produces().length > 1) {
-        consumesValue = requestMapping.consumes()[0];
-      } else {
-        requestMapping = getAnnotation(method.getEnclosingType(), RequestMapping.class);
-        if (requestMapping != null && requestMapping.produces() != null && requestMapping.produces().length > 1) {
-          consumesValue = requestMapping.consumes()[0];
-        }
-      }
-    }
-
     return consumesValue;
   }
 }
