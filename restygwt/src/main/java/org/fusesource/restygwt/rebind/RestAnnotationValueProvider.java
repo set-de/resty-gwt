@@ -63,7 +63,7 @@ public class RestAnnotationValueProvider {
 
     boolean jaxRsAvailable = false;
     try {
-      Class.forName("javax.ws.rs.Path");
+      Class.forName("jakarta.ws.rs.Path");
       jaxRsAvailable = true;
     } catch (ClassNotFoundException ex) {
       // do nothing
@@ -148,7 +148,7 @@ public class RestAnnotationValueProvider {
   }
 
   public static boolean isPathValue(Annotation annotation, Method method) {
-    if (annotation.annotationType().getName().equals("javax.ws.rs.Path")) {
+    if (annotation.annotationType().getName().equals("jakarta.ws.rs.Path")) {
       return true;
     } else if (annotation.annotationType().getName().equals("org.springframework.web.bind.annotation.RequestMapping")
         && method.getName().equals("path")) {
